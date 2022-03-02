@@ -31,13 +31,22 @@ AUC values can range from 0-1 where .5 is chance and 1 is perfect prediction.
 Columns:
 
           * id (unique participant identifier, matches auc.csv)
+          
           * age_group (a categorical age variable with levels:
              ".5-1 y" "1-1.5 y" "1.5-2 y" "2-4 y" "4-6 y" "8-10 y" "adult") 
+             
           * precision (a quality measure of the eye data, smaller is better)
+          
           * 7 columns of "Seen X" the stimulus video before the study
              coded as SEEN (1), NOT SEEN (2), NOT SURE (3) 
-
+            
+# STEP 1: READ IN THE AUC DATA
+Code stim as a factor
 ```{r}
+auc <- read_csv(here("data_raw", "auc_bystim.csv"))
 
+stim_levels <- 1:7
+stim_labels <- c("Fallon","Feist","Pentatonix","Science","Rube","Plane","Dogs")
+auc <- auc %>% mutate(stim = factor(stim, levels = stim_levels, labels = stim_labels))
 
 ```
