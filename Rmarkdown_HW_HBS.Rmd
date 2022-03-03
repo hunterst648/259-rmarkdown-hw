@@ -13,15 +13,15 @@ Skip down to Step 3 to work on EDA.
 
 Columns: 
 
-         * stim (stimulus video, levels/labels provided below)
+* stim (stimulus video, levels/labels provided below)
          
-         * id (unique participant identifier)
+* id (unique participant identifier)
          
-         * age (in days)
+* age (in days)
          
-         * AUC_sal (area-under-the-curve for a saliency model)
+* AUC_sal (area-under-the-curve for a saliency model)
          
-         * AUC_dist (area-under-the-curve for a distance model)
+* AUC_dist (area-under-the-curve for a distance model)
          
 AUC values indicate how well each model predicted where participants looked 
 when watching a video.
@@ -30,19 +30,19 @@ AUC values can range from 0-1 where .5 is chance and 1 is perfect prediction.
 ## FILE 2: participants_info_full_headers.csv
 Columns:
 
-          * id (unique participant identifier, matches auc.csv)
+* id (unique participant identifier, matches auc.csv)
           
-          * age_group (a categorical age variable with levels:
+* age_group (a categorical age variable with levels:
              ".5-1 y" "1-1.5 y" "1.5-2 y" "2-4 y" "4-6 y" "8-10 y" "adult") 
              
-          * precision (a quality measure of the eye data, smaller is better)
+* precision (a quality measure of the eye data, smaller is better)
           
-          * 7 columns of "Seen X" the stimulus video before the study
+* 7 columns of "Seen X" the stimulus video before the study
              coded as SEEN (1), NOT SEEN (2), NOT SURE (3) 
             
 # STEP 1: READ IN THE AUC DATA
 Code stim as a factor
-```{r}
+```{r data_raw, cache=TRUE}
 auc <- read_csv(here("data_raw", "auc_bystim.csv"))
 
 stim_levels <- 1:7
@@ -50,3 +50,11 @@ stim_labels <- c("Fallon","Feist","Pentatonix","Science","Rube","Plane","Dogs")
 auc <- auc %>% mutate(stim = factor(stim, levels = stim_levels, labels = stim_labels))
 
 ```
+
+# STEP 2: READ IN THE PPT INFO DATA
+
+Wrangle the ppt info data so that you can merge it into the auc data
+Drop any data where the AUC values are missing
+In the final, merged data, make the "watched" variable is coded as a factor with 
+  levels "seen" (1), "not seen" (2), "not sure" (3) 
+Write the cleaned file to data_cleaned/
