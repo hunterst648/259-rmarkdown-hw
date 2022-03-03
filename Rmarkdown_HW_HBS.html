@@ -172,62 +172,47 @@ pre code {
 
 
 <p>This project has two raw data files at different scales from a study of infants, children, and adults watching a series of 7 video clips. I wrote Steps 1 and 2 to import and merge the data, and kept them here for your reference Skip down to Step 3 to work on EDA.</p>
-<div id="source-description" class="section level1">
-<h1>SOURCE DESCRIPTION</h1>
-<div id="file-1-auc.csv" class="section level2">
-<h2>FILE 1: auc.csv</h2>
+<div id="source-description" class="section level2">
+<h2>SOURCE DESCRIPTION</h2>
+<div id="file-1-auc.csv" class="section level3">
+<h3>FILE 1: auc.csv</h3>
 <p>Columns:</p>
 <ul>
-<li><p>stim (stimulus video, levels/labels provided below)</p></li>
-<li><p>id (unique participant identifier)</p></li>
-<li><p>age (in days)</p></li>
-<li><p>AUC_sal (area-under-the-curve for a saliency model)</p></li>
-<li><p>AUC_dist (area-under-the-curve for a distance model)</p></li>
+<li>stim (stimulus video, levels/labels provided below)</li>
+<li>id (unique participant identifier)</li>
+<li>age (in days)</li>
+<li>AUC_sal (area-under-the-curve for a saliency model)</li>
+<li>AUC_dist (area-under-the-curve for a distance model)</li>
 </ul>
 <p>AUC values indicate how well each model predicted where participants looked when watching a video. AUC values can range from 0-1 where .5 is chance and 1 is perfect prediction.</p>
 </div>
-<div id="file-2-participants_info_full_headers.csv" class="section level2">
-<h2>FILE 2: participants_info_full_headers.csv</h2>
+<div id="file-2-participants_info_full_headers.csv" class="section level3">
+<h3>FILE 2: participants_info_full_headers.csv</h3>
 <p>Columns:</p>
 <ul>
-<li><p>id (unique participant identifier, matches auc.csv)</p></li>
-<li><p>age_group (a categorical age variable with levels: “.5-1 y” “1-1.5 y” “1.5-2 y” “2-4 y” “4-6 y” “8-10 y” “adult”)</p></li>
-<li><p>precision (a quality measure of the eye data, smaller is better)</p></li>
-<li><p>7 columns of “Seen X” the stimulus video before the study coded as SEEN (1), NOT SEEN (2), NOT SURE (3)</p></li>
+<li>id (unique participant identifier, matches auc.csv)</li>
+<li>age_group (a categorical age variable with levels: “.5-1 y” “1-1.5 y” “1.5-2 y” “2-4 y” “4-6 y” “8-10 y” “adult”)</li>
+<li>precision (a quality measure of the eye data, smaller is better)</li>
+<li>7 columns of “Seen X” the stimulus video before the study coded as SEEN (1), NOT SEEN (2), NOT SURE (3)</li>
 </ul>
 </div>
 </div>
-<div id="step-1-read-in-the-auc-data" class="section level1">
-<h1>STEP 1: READ IN THE AUC DATA</h1>
+<div id="step-1-read-in-the-auc-data" class="section level2">
+<h2>STEP 1: READ IN THE AUC DATA</h2>
 <p>Code stim as a factor</p>
-<pre class="r"><code>auc &lt;- read_csv(here(&quot;data_raw&quot;, &quot;auc_bystim.csv&quot;))</code></pre>
-<pre><code>## Rows: 575 Columns: 5</code></pre>
-<pre><code>## -- Column specification --------------------------------------------------------
-## Delimiter: &quot;,&quot;
-## dbl (5): stim, id, age, AUC_sal, AUC_dist</code></pre>
-<pre><code>## 
-## i Use `spec()` to retrieve the full column specification for this data.
-## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre class="r"><code>stim_levels &lt;- 1:7
+<pre class="r"><code>auc &lt;- read_csv(here(&quot;data_raw&quot;, &quot;auc_bystim.csv&quot;))
+stim_levels &lt;- 1:7
 stim_labels &lt;- c(&quot;Fallon&quot;,&quot;Feist&quot;,&quot;Pentatonix&quot;,&quot;Science&quot;,&quot;Rube&quot;,&quot;Plane&quot;,&quot;Dogs&quot;)
 auc &lt;- auc %&gt;% mutate(stim = factor(stim, levels = stim_levels, labels = stim_labels))</code></pre>
 </div>
-<div id="step-2-read-in-the-ppt-info-data" class="section level1">
-<h1>STEP 2: READ IN THE PPT INFO DATA</h1>
+<div id="step-2-read-in-the-ppt-info-data" class="section level2">
+<h2>STEP 2: READ IN THE PPT INFO DATA</h2>
 <p>Wrangle the ppt info data so that you can merge it into the auc data Drop any data where the AUC values are missing In the final, merged data, make the “watched” variable is coded as a factor with levels “seen” (1), “not seen” (2), “not sure” (3) Write the cleaned file to data_cleaned/</p>
 <p>Read in the ppt data and rename columns to be easier to work with.</p>
 <pre class="r"><code>ppt &lt;- read_csv(here(&quot;data_raw&quot;,&quot;participants_info_full_headers.csv&quot;)) %&gt;% 
   rename(id = `participant ID`,
          age_group = `Age group`,
          precision = &quot;Precision&quot;)</code></pre>
-<pre><code>## Rows: 115 Columns: 10</code></pre>
-<pre><code>## -- Column specification --------------------------------------------------------
-## Delimiter: &quot;,&quot;
-## chr (1): Age group
-## dbl (9): participant ID, Precision, Seen Feist, Seen Plane, Seen Fallon, See...</code></pre>
-<pre><code>## 
-## i Use `spec()` to retrieve the full column specification for this data.
-## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 <p>Each question about watching each video is a column, so pivot_longer Use separate to get just the video name into it’s own column</p>
 <pre class="r"><code>ppt_long &lt;- ppt %&gt;% pivot_longer(cols = starts_with(&quot;Seen&quot;), names_to = &quot;stim&quot;, values_to = &quot;watched&quot;)
 ppt_long &lt;- ppt_long %&gt;% separate(stim, into = c(NA, &quot;stim&quot;))</code></pre>
@@ -241,10 +226,10 @@ ds &lt;- ds %&gt;% drop_na(AUC_sal:AUC_dist)#Drop participants for whom we don&#
 <p>Write the data to file</p>
 <pre class="r"><code>ds %&gt;% write_csv(here(&quot;data_cleaned&quot;,&quot;cleaned.csv&quot;))</code></pre>
 </div>
-<div id="step-3-exploratory-data-analysis" class="section level1">
-<h1>STEP 3: EXPLORATORY DATA ANALYSIS</h1>
-<div id="a-precision" class="section level2">
-<h2>#3A PRECISION:</h2>
+<div id="step-3-exploratory-data-analysis" class="section level2">
+<h2>STEP 3: EXPLORATORY DATA ANALYSIS</h2>
+<div id="a-precision" class="section level3">
+<h3>#3A PRECISION:</h3>
 <p>Visualize the distribution of precision to see if there are values above 2.5</p>
 </div>
 </div>
