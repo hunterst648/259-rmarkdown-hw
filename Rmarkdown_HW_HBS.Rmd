@@ -2,11 +2,12 @@
 title: "Rmarkdown_HW"
 author: "Hunter B Sturgill"
 date: "3/2/2022"
-output: htmldocument
-  toc: true
-  toc_float: true
-  toc_depth: 3
-  theme: united
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    theme: united
 ---
 ```{r setup, include = FALSE}
 library(ggplot2)
