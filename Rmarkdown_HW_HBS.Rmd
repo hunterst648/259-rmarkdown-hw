@@ -6,7 +6,8 @@ output:
   html_document:
     toc: true
     toc_float: true
-    toc_depth: 3
+    toc_depth: 3 
+    code_folding: hide
     theme: united
 ---
 ```{r setup, include = FALSE}
